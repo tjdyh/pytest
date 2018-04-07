@@ -4,7 +4,9 @@
 import urllib2
 import chardet
 
-req = urllib2.Request('http://www.zhbservice.com')
+url = 'http://www.zhbservice.com'
+
+req = urllib2.Request(url)
 # print type(response.read())
 res = urllib2.urlopen(req)
 html = res.read()
@@ -17,7 +19,7 @@ fo = open("b.html", 'w')
 fo.write(html)
 fo.close()
 
-# fo1 = open("b.html", 'r')
-# data = fo1.read()
-# print data
-# fo1.close()
+fo1 = open("b.html", 'r')
+data = fo1.read()
+print data
+fo1.close()
