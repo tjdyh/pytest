@@ -8,8 +8,10 @@ import re
 import os
 import time
 import ssl
+import threading
 
 i = 0
+#获取源url的html内容
 def getHtml(url):
     send_headers = {
         'User - Agent': 'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 65.0.3325.181 Safari / 537.36',
@@ -32,17 +34,58 @@ def callBackFunc(block_Num,block_Size,total_Size):
         download_Percent = 100
     print "正在下载第",i,"张图片，已下载 %",download_Percent
 
+#获取子url页的图片url列表
+def sub_imglist(sub_url):
+    img_urllist=[]
+    for sub_str in sub_url:
+        img_url = sub_str["src"]
+        img_urllist.append(img_url)
+    # print img_urllist
+    return img_urllist
+
+#生产存放图片目录
+def img_dir():
+    filename = "Imge" + str(time.strftime("%Y-%m-%d", time.localtime()))
+    if os.path.exists(filename):
+        print "目录已创建"
+    else:
+        os.mkdir(filename)
+        print "已创建目录"
+        print filename
+
+#根据传入图片url列表依次下载图片
+def down_img(img_urllist):
+    filename = "imge" + str(time.strftime("%Y-%m-%d", time.localtime()))
+    if os.path.exists(filename):
+        print "目录已创建"
+    else:
+        os.mkdir(filename)
+        print "已创建目录"
+        # print filename
+    print "开始下载资源。。。"
+    _path_ = os.path.abspath(filename)
+    for img_url in img_urllist:
+        path = os.path.join(_path_, img_url[-36:])
+        print img_url
+        print path
+        context = ssl._create_unverified_context()
+        f = urllib2.urlopen(img_url, context=context)
+        data = f.read()
+        with open(path, "wb") as code:
+            code.write(data)
+
+
 if __name__ == '__main__':
     gate_URL = "https://www.9123df.com/pic/5/"
     html = getHtml(gate_URL)
     html_Doc = html.read()
     # print html_Doc
+    threads=[]
 
     if html != None:
         soupHtml = BeautifulSoup(html_Doc, "lxml", from_encoding="utf-8")
         divs = soupHtml.findAll('a', target="_blank")
         # print divs
-        flag = 1
         for div in divs:
             div_Doc = str(div)
             soupDiv = BeautifulSoup(div_Doc, "lxml", from_encoding="utf-8")
@@ -56,24 +99,13 @@ if __name__ == '__main__':
                 soupP  = BeautifulSoup(sub_html_Doc, "lxml", from_encoding="utf-8")
                 soupP_con = soupP.find_all('img')
                 # print soupP_con
-                for sub_str in soupP_con:
-                    img_url = sub_str["src"]
-                    print img_url
-                    filename = "Imge"+str(time.strftime("%Y-%m-%d", time.localtime()))
-                    if os.path.exists(filename):
-                        print "目录已创建"
-                    else:
-                        os.mkdir(filename)
-                        print "已创建目录"
-                        print filename
-                    print "开始下载资源。。。"
-                    _path_ =  os.path.abspath(filename)
-                    path = os.path.join(_path_, img_url[-36:])
-                    print path
-                    context = ssl._create_unverified_context()
-                    f = urllib2.urlopen(img_url, context=context)
-                    data = f.read()
-                    with open(path, "wb") as code:
-                        code.write(data)
+                img_urllist = sub_imglist(soupP_con)
+                print img_urllist
+                threads.append(threading.Thread(target=down_img, args=[img_urllist]))
+    for t in threads:
+        t.setDaemon(True)
+        t.start()
+        t.join()
+
     else:
         print ("获取失败。。。")
