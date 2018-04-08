@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="Copy of project-level server 'web_admin'">
+  <component name="PublishConfigData" autoUpload="Always" serverName="pytest">
     <serverData>
-      <paths name="Copy of project-level server 'web_admin'">
+      <paths name="pytest">
         <serverdata>
           <mappings>
             <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="pytest">
+      <paths name="salt">
         <serverdata>
           <mappings>
-            <mapping deploy="/opt/python_workspace" local="$PROJECT_DIR$" web="/" />
+            <mapping local="$PROJECT_DIR$" web="/" />
           </mappings>
         </serverdata>
       </paths>
