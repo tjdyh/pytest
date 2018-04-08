@@ -86,6 +86,7 @@ if __name__ == '__main__':
         soupHtml = BeautifulSoup(html_Doc, "lxml", from_encoding="utf-8")
         divs = soupHtml.findAll('a', target="_blank")
         # print divs
+        flag = 1
         for div in divs:
             div_Doc = str(div)
             soupDiv = BeautifulSoup(div_Doc, "lxml", from_encoding="utf-8")
@@ -101,11 +102,13 @@ if __name__ == '__main__':
                 # print soupP_con
                 img_urllist = sub_imglist(soupP_con)
                 print img_urllist
-                threads.append(threading.Thread(target=down_img, args=[img_urllist]))
-    for t in threads:
-        t.setDaemon(True)
-        t.start()
-        t.join()
+                t = threading.Thread(target=down_img, args=[img_urllist])
+                threads.append(t)
+        # print threads
+        for t in threads:
+            t.setDaemon(True)
+            t.start()
+            t.join()
 
     else:
         print ("获取失败。。。")
