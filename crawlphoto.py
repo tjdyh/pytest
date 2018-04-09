@@ -10,7 +10,8 @@ import time
 import ssl
 import threading
 
-i = 0
+ssl._create_default_https_context = ssl._create_unverified_context
+i = 1
 #获取源url的html内容
 def getHtml(url):
     send_headers = {
@@ -18,9 +19,10 @@ def getHtml(url):
         'Accept': 'text / html, application / xhtml + xml, application / xml; q = 0.9, image / webp, image / apng, * / *;q = 0.8',
         'Connection': 'keep-alive'
     }
-    context = ssl._create_unverified_context()
+    # context = ssl._create_unverified_context()
     urls = urllib2.Request(url, headers=send_headers)
-    html = urllib2.urlopen(urls, context=context)
+    # html = urllib2.urlopen(urls, context=context)
+    html = urllib2.urlopen(urls)
     if html.getcode() == 200:
         print ("已捕获"),url,"目标站数据。。。"
         return html
@@ -28,11 +30,11 @@ def getHtml(url):
         print ("访问出现错误。。。错误代码："),html.getcode()
         return None
 
-def callBackFunc(block_Num,block_Size,total_Size):
-    download_Percent = 100.0 * block_Num * block_Size /total_Size
+def callBackFunc(blocknum,blocksize,totalsize):
+    download_Percent = 100.0 * blocknum * blocksize /totalsize
     if download_Percent > 100:
         download_Percent = 100
-    print "正在下载第",i,"张图片，已下载 %",download_Percent
+    print "正在下载第 %d 张图片，已下载 %s" % (i, download_Percent)
 
 #获取子url页的图片url列表
 def sub_imglist(sub_url):
@@ -68,11 +70,31 @@ def down_img(img_urllist):
         path = os.path.join(_path_, img_url[-36:])
         print img_url
         print path
-        context = ssl._create_unverified_context()
-        f = urllib2.urlopen(img_url, context=context)
+        # context = ssl._create_unverified_context()
+        # f = urllib2.urlopen(img_url, context=context)
+        f = urllib2.urlopen(img_url)
         data = f.read()
         with open(path, "wb") as code:
             code.write(data)
+
+#使用urllib模块重写下载模块
+def down_img1(img_urllist):
+    global i
+    filename = "imge" + str(time.strftime("%Y-%m-%d", time.localtime()))
+    if os.path.exists(filename):
+        print "目录已创建"
+    else:
+        os.mkdir(filename)
+        print "已创建目录"
+        # print filename
+    print "开始下载资源。。。"
+    _path_ = os.path.abspath(filename)
+    for img_url in img_urllist:
+        path = os.path.join(_path_, img_url[-36:])
+        print img_url
+        print path
+        urllib.urlretrieve(img_url, path, callBackFunc)
+        i += 1
 
 
 if __name__ == '__main__':
@@ -101,10 +123,10 @@ if __name__ == '__main__':
                 soupP_con = soupP.find_all('img')
                 # print soupP_con
                 img_urllist = sub_imglist(soupP_con)
-                print img_urllist
-                t = threading.Thread(target=down_img, args=[img_urllist])
+                # print img_urllist
+                t = threading.Thread(target=down_img1, args=[img_urllist])
                 threads.append(t)
-        # print threads
+        print threads
         for t in threads:
             t.setDaemon(True)
             t.start()
