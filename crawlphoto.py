@@ -10,8 +10,10 @@ import time
 import ssl
 import threading
 
+#解决访问https时不受信任SSL证书问题
 ssl._create_default_https_context = ssl._create_unverified_context
 i = 1
+j = 0
 #获取源url的html内容
 def getHtml(url):
     send_headers = {
@@ -30,8 +32,8 @@ def getHtml(url):
         print ("访问出现错误。。。错误代码："),html.getcode()
         return None
 
-def callBackFunc(blocknum,blocksize,totalsize):
-    download_Percent = 100.0 * blocknum * blocksize /totalsize
+def callBackFunc(blocknum, blocksize, totalsize):
+    download_Percent = 100.0 * blocknum * blocksize / totalsize
     if download_Percent > 100:
         download_Percent = 100
     print "正在下载第 %d 张图片，已下载 %s" % (i, download_Percent)
@@ -80,6 +82,7 @@ def down_img(img_urllist):
 #使用urllib模块重写下载模块
 def down_img1(img_urllist):
     global i
+    global j
     filename = "imge" + str(time.strftime("%Y-%m-%d", time.localtime()))
     if os.path.exists(filename):
         print "目录已创建"
@@ -93,7 +96,11 @@ def down_img1(img_urllist):
         path = os.path.join(_path_, img_url[-36:])
         print img_url
         print path
-        urllib.urlretrieve(img_url, path, callBackFunc)
+        try:
+            urllib.urlretrieve(img_url, path, callBackFunc)
+        except IOError,e:
+            print "下载第%d张图片出现错误"%i
+            j += 1
         i += 1
 
 
@@ -131,6 +138,6 @@ if __name__ == '__main__':
             t.setDaemon(True)
             t.start()
             t.join()
-
+        print "共有%d张图片下载失败！"%j
     else:
         print ("获取失败。。。")
