@@ -4,16 +4,33 @@
 from bs4 import BeautifulSoup
 import urllib
 import urllib2
-import re
 import os
 import time
 import ssl
 import threading
+import logging
 
 #解决访问https时不受信任SSL证书问题
 ssl._create_default_https_context = ssl._create_unverified_context
+
 i = 1
 j = 0
+
+#定义日志类
+class Pubclilog():
+    def __init__(self):
+        self.logfile = './test.log'
+    def iniLog(self):
+        logger = logging.getLogger()
+        filehandler = logging.FileHandler(self.logfile)
+        streamhandler = logging.StreamHandler()
+        fmt = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(filehandler)
+        logger.addHandler(streamhandler)
+        return [logger, filehandler]
+
+
 #获取源url的html内容
 def getHtml(url):
     send_headers = {
@@ -26,6 +43,10 @@ def getHtml(url):
     # html = urllib2.urlopen(urls, context=context)
     html = urllib2.urlopen(urls)
     if html.getcode() == 200:
+        t1 = Pubclilog()
+        logger, hdlr = t1.iniLog()
+        logmsg = "已捕获%s目标站数据。。。" % url
+        logger.info(logmsg)
         print ("已捕获"),url,"目标站数据。。。"
         return html
     else:
@@ -105,7 +126,7 @@ def down_img1(img_urllist):
 
 
 if __name__ == '__main__':
-    gate_URL = "https://www.9123df.com/pic/5/"
+    gate_URL = "https://www.9876df.com/pic/5/"
     html = getHtml(gate_URL)
     html_Doc = html.read()
     # print html_Doc
