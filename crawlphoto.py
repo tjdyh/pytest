@@ -9,6 +9,7 @@ import time
 import ssl
 import threading
 import logging
+import random
 
 #解决访问https时不受信任SSL证书问题
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -33,21 +34,33 @@ class Pubclilog():
 
 #获取源url的html内容
 def getHtml(url):
+    headers = [
+        "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:30.0) Gecko/20100101 Firefox/30.0",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/537.75.14",
+        "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Win64; x64; Trident/6.0)"
+    ]
+
+    random_header = random.choice(headers)
+    print random_header
     send_headers = {
-        'User - Agent': 'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 65.0.3325.181 Safari / 537.36',
-        'Accept': 'text / html, application / xhtml + xml, application / xml; q = 0.9, image / webp, image / apng, * / *;q = 0.8',
-        'Connection': 'keep-alive'
+        'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 65.0.3325.181 Safari / 537.36'
+        # 'Accept': 'text / html, application / xhtml + xml, application / xml; q = 0.9, image / webp, image / apng, * / *;q = 0.8',
+        # 'Connection': 'keep-alive'
     }
     # context = ssl._create_unverified_context()
-    urls = urllib2.Request(url, headers=send_headers)
-    # html = urllib2.urlopen(urls, context=context)
-    html = urllib2.urlopen(urls)
+    req = urllib2.Request(url)
+    req.add_header("User-Agent",random_header)
+    # req.add_header("User-Agent",send_headers)
+    html = urllib2.urlopen(req)
     if html.getcode() == 200:
-        t1 = Pubclilog()
-        logger, hdlr = t1.iniLog()
-        logmsg = "已捕获%s目标站数据。。。" % url
-        logger.info(logmsg)
+        # t1 = Pubclilog()
+        # logger, hdlr = t1.iniLog()
+        # logmsg = "已捕获%s目标站数据。。。" % url
+        # logger.info(logmsg)
         print ("已捕获"),url,"目标站数据。。。"
+        # print html.read()
         return html
     else:
         print ("访问出现错误。。。错误代码："),html.getcode()
@@ -65,7 +78,7 @@ def sub_imglist(sub_url):
     for sub_str in sub_url:
         img_url = sub_str["src"]
         img_urllist.append(img_url)
-    # print img_urllist
+    print img_urllist
     return img_urllist
 
 #生产存放图片目录
@@ -126,7 +139,9 @@ def down_img1(img_urllist):
 
 
 if __name__ == '__main__':
-    gate_URL = "https://www.9876df.com/pic/5/"
+    url = "https://www.1118df.com"
+    gate_URL = url + "/pic/5/"
+    print gate_URL
     html = getHtml(gate_URL)
     html_Doc = html.read()
     # print html_Doc
@@ -135,15 +150,15 @@ if __name__ == '__main__':
     if html != None:
         soupHtml = BeautifulSoup(html_Doc, "lxml", from_encoding="utf-8")
         divs = soupHtml.findAll('a', target="_blank")
-        # print divs
-        flag = 1
+        print divs
+        # flag = 1
         for div in divs:
             div_Doc = str(div)
             soupDiv = BeautifulSoup(div_Doc, "lxml", from_encoding="utf-8")
             htmls = soupDiv.a.get('href')
             if ".html" in htmls and "pic" in htmls:
-                sub_url = "https://www.9123df.com" + htmls
-                # print sub_url
+                sub_url = url + htmls
+                print sub_url
                 sub_html = getHtml(sub_url)
                 sub_html_Doc = sub_html.read()
                 # print sub_html_Doc
@@ -151,7 +166,6 @@ if __name__ == '__main__':
                 soupP_con = soupP.find_all('img')
                 # print soupP_con
                 img_urllist = sub_imglist(soupP_con)
-                # print img_urllist
                 t = threading.Thread(target=down_img1, args=[img_urllist])
                 threads.append(t)
         print threads
