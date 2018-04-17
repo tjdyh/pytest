@@ -62,7 +62,7 @@ def getHtml(url):
     #     return None
     try:
         html = urllib2.urlopen(req)
-        print "已捕获", url, "目标站数据。。。"
+        print "已捕获", url, "目标站数据,返回状态码：", html.getcode()
         # print html.read()
         return html
     except urllib2.URLError, e:
