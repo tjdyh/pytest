@@ -44,26 +44,30 @@ def getHtml(url):
 
     random_header = random.choice(headers)
     print random_header
-    send_headers = {
-        'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 65.0.3325.181 Safari / 537.36'
-        # 'Accept': 'text / html, application / xhtml + xml, application / xml; q = 0.9, image / webp, image / apng, * / *;q = 0.8',
-        # 'Connection': 'keep-alive'
-    }
     # context = ssl._create_unverified_context()
     req = urllib2.Request(url)
     req.add_header("User-Agent",random_header)
     # req.add_header("User-Agent",send_headers)
-    html = urllib2.urlopen(req)
-    if html.getcode() == 200:
-        # t1 = Pubclilog()
-        # logger, hdlr = t1.iniLog()
-        # logmsg = "已捕获%s目标站数据。。。" % url
-        # logger.info(logmsg)
-        print ("已捕获"),url,"目标站数据。。。"
+    # html = urllib2.urlopen(req)
+    # if html.getcode() == 200:
+    #     # t1 = Pubclilog()
+    #     # logger, hdlr = t1.iniLog()
+    #     # logmsg = "已捕获%s目标站数据。。。" % url
+    #     # logger.info(logmsg)
+    #     print ("已捕获"),url,"目标站数据。。。"
+    #     # print html.read()
+    #     return html
+    # else:
+    #     print ("访问出现错误。。。错误代码："),html.getcode()
+    #     return None
+    try:
+        html = urllib2.urlopen(req)
+        print "已捕获", url, "目标站数据。。。"
         # print html.read()
         return html
-    else:
-        print ("访问出现错误。。。错误代码："),html.getcode()
+    except urllib2.URLError, e:
+        # print "访问出现错误，错误代码：", e.getcode()
+        print e.reason
         return None
 
 def callBackFunc(blocknum, blocksize, totalsize):
@@ -139,7 +143,7 @@ def down_img1(img_urllist):
 
 
 if __name__ == '__main__':
-    url = "https://www.1118df.com"
+    url = "https://www.1818df.com"
     gate_URL = url + "/pic/5/"
     print gate_URL
     html = getHtml(gate_URL)
