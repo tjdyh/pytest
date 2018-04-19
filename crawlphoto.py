@@ -8,6 +8,7 @@ import os
 import time
 import ssl
 import threading
+import time
 import logging
 import random
 
@@ -141,9 +142,26 @@ def down_img1(img_urllist):
             j += 1
         i += 1
 
+#多线程函数
+def multiple_threads_test(img_urllist):
+    #记录实验的开始时间
+    t1 = time.time()
+    th_lst = []
+    th = threading.Thread(target=down_img1, args=[img_urllist])
+    th_lst.append(th)
+    for th in th_lst:
+        th.start()
+    for th in th_lst:
+        th.join()
+    #记录实验完成的时间
+    t2 = time.time()
+    print "使用时间：", t2-t1
+    return t2-t1
+
+
 
 if __name__ == '__main__':
-    url = "https://www.1818df.com"
+    url = "https://www.zhbservice.com"
     gate_URL = url + "/pic/5/"
     print gate_URL
     html = getHtml(gate_URL)
