@@ -3,6 +3,7 @@
 
 from bs4 import BeautifulSoup
 import urllib2
+import urllib
 import time
 import ssl
 import os
@@ -50,6 +51,7 @@ def getHtml(url):
         calback = e.reason
         return calback
 
+#下载进度函数
 def callBackFunc(blocknum, blocksize, totalsize):
     download_Percent = 100.0 * blocknum * blocksize / totalsize
     if download_Percent > 100:
@@ -66,6 +68,28 @@ def img_dir():
         os.mkdir(filename)
         print "已创建目录"
         print filename
+
+# 使用urllib模块重写下载模块
+def down_img1(img_urllist):
+    global i
+    global j
+    filename = "imge" + str(time.strftime("%Y-%m-%d", time.localtime()))
+    if os.path.exists(filename):
+        print "目录已创建"
+    else:
+        os.mkdir(filename)
+        print "已创建目录"
+        # print filename
+    print "开始下载资源。。。"
+    _path_ = os.path.abspath(filename)
+    for img_url in img_urllist:
+        path = os.path.join(_path_, img_url[-36:])
+        print img_url
+        print path
+        try:
+            urllib.urlretrieve(img_url, path, callBackFunc)
+        except IOError, e:
+            print "下载第%d张图片出现错误" % i
 
 
 #多线程函数
