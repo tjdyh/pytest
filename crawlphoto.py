@@ -176,6 +176,7 @@ if __name__ == '__main__':
         for t in threads:
             t.setDaemon(True)
             t.start()
+        for t in threads:
             t.join()
         print "共有%d张图片下载失败！"%j
     else:
